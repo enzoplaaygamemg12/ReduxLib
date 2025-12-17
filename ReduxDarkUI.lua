@@ -2134,6 +2134,73 @@ function redzlib:MakeWindow(Configs)
 					Padding = UDim.new(0, 4)
 				})
 			}), "ScrollBar")
+            
+            -- default
+           if DMultiSelect then
+	           if typeof(OpDefault) == "table" then
+		            for _,v in ipairs(OpDefault) do
+			            Selected[v] = true
+		            end
+	            elseif OpDefault ~= nil then
+		            Selected[OpDefault] = true
+	            end
+            else
+	            Selected = OpDefault
+            end
+
+            -- NÃO recriar Selected (já vem da lib)
+
+            local function UpdateLabel()
+	            if DMultiSelect then
+		            local list = {}
+		            for v,_ in pairs(Selected) do
+			             table.insert(list, v)
+		            end
+		            ActiveLabel.Text = (#list > 0 and table.concat(list, ", ")) or "..."
+	            else
+		            ActiveLabel.Text = tostring(Selected or "...")
+	            end
+             end
+
+             UpdateLabel()
+
+             for _, Option in ipairs(DOptions) do
+	             local OptionButton = Create("TextButton", ScrollFrame, {
+		             Size = UDim2.new(1, -4, 0, 24),
+		             BackgroundTransparency = 1,
+		             Text = tostring(Option),
+		             Font = Enum.Font.Gotham,
+		             TextSize = 13,
+		            TextColor3 = Theme["Color Text"],
+		            TextXAlignment = Enum.TextXAlignment.Left
+	             })
+
+	             OptionButton.MouseButton1Click:Connect(function()
+		             if DMultiSelect then
+			             Selected[Option] = not Selected[Option]
+			             UpdateLabel()
+
+			             if Callback then
+				             local values = {}
+				             for v,_ in pairs(Selected) do
+					             table.insert(values, v)
+				             end
+				             Callback(values)
+			             end
+		             else
+			             Selected = Option
+			             UpdateLabel()
+
+			             if Callback then
+				             Callback(Option)
+			             end
+
+			             Disable()
+		             end
+	            end)
+            end
+
+            CalculateSize()
 			
 			local ScrollSize, WaitClick = 5
 			local function Disable()
