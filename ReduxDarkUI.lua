@@ -2060,169 +2060,153 @@ function redzlib:MakeWindow(Configs)
 			return Toggle
 		end
 		function Tab:AddDropdown(Configs)
-	        local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
-	        local DDesc = Configs.Desc or Configs.Description or ""
-	        local DOptions = Configs[2] or Configs.Options or {}
-	        local OpDefault = Configs[3] or Configs.Default
-	        local Callback = Funcs:GetCallback(Configs, 4)
-	        local MultiSelect = Configs.MultiSelect or false
+            local DName = Configs.Name or Configs[1] or "Dropdown"
+            local DDesc = Configs.Desc or ""
+            local DOptions = Configs.Options or Configs[2] or {}
+            local OpDefault = Configs.Default
+            local Callback = Configs.Callback
+            local MultiSelect = Configs.MultiSelect or false
 
-	        local Button = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
+            -- botão base
+            local Button = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
 
-	        local SelectedFrame = InsertTheme(Create("Frame", Button, {
-		        Size = UDim2.new(0, 150, 0, 18),
-		        Position = UDim2.new(1, -10, 0.5),
-		        AnchorPoint = Vector2.new(1, 0.5),
-		        BackgroundColor3 = Theme["Color Stroke"]
-	        }), "Stroke")
-	        Make("Corner", SelectedFrame, UDim.new(0, 4))
+            local SelectedFrame = InsertTheme(Create("Frame", Button, {
+                Size = UDim2.new(0,150,0,18),
+                Position = UDim2.new(1,-10,0.5),
+                AnchorPoint = Vector2.new(1,0.5),
+                BackgroundColor3 = Theme["Color Stroke"]
+            }),"Stroke")
+            Make("Corner", SelectedFrame, UDim.new(0,4))
 
-	        local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
-		        Size = UDim2.new(0.85, 0, 0.85, 0),
-		        AnchorPoint = Vector2.new(0.5, 0.5),
-		        Position = UDim2.new(0.5, 0, 0.5, 0),
-		        BackgroundTransparency = 1,
-		        Font = Enum.Font.GothamBold,
-		        TextScaled = true,
-		        TextColor3 = Theme["Color Text"],
-		        Text = "..."
-	        }), "Text")
+            local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
+                Size = UDim2.new(0.85,0,0.85,0),
+                Position = UDim2.new(0.5,0,0.5,0),
+                AnchorPoint = Vector2.new(0.5,0.5),
+                BackgroundTransparency = 1,
+                Font = Enum.Font.GothamBold,
+                TextScaled = true,
+                Text = "...",
+                TextColor3 = Theme["Color Text"]
+            }),"Text")
 
-	        local Arrow = Create("ImageLabel", SelectedFrame, {
-		        Size = UDim2.new(0, 15, 0, 15),
-		        Position = UDim2.new(0, -5, 0.5),
-		        AnchorPoint = Vector2.new(1, 0.5),
-		        Image = "rbxassetid://10709791523",
-		        BackgroundTransparency = 1
-	        })
+            local Arrow = Create("ImageLabel", SelectedFrame, {
+                Size = UDim2.new(0,15,0,15),
+                Position = UDim2.new(1,-5,0.5),
+                AnchorPoint = Vector2.new(1,0.5),
+                BackgroundTransparency = 1,
+                Image = "rbxassetid://10709791523"
+            })
 
-	        local NoClickFrame = Create("TextButton", DropdownHolder, {
-		         Size = UDim2.new(1, 0, 1, 0),
-		         BackgroundTransparency = 1,
-		         Visible = false,
-		         Text = ""
-	        })
+            -- dropdown holder
+            local NoClickFrame = Create("TextButton", DropdownHolder, {
+                Size = UDim2.new(1,0,1,0),
+                BackgroundTransparency = 1,
+                Visible = false,
+                Text = ""
+            })
 
-	        local DropFrame = Create("Frame", NoClickFrame, {
-		        Size = UDim2.new(0, 152, 0, 0),
-		        BackgroundTransparency = 0.1,
-		        AnchorPoint = Vector2.new(0, 1),
-		        ClipsDescendants = true,
-		        Active = true
-	        })
-	        Make("Corner", DropFrame)
-	        Make("Stroke", DropFrame)
+            local DropFrame = Create("Frame", NoClickFrame, {
+                Size = UDim2.new(0,152,0,0),
+                BackgroundTransparency = 0.1,
+                ClipsDescendants = true,
+                Active = true
+            })
+            Make("Corner", DropFrame)
+            Make("Stroke", DropFrame)
 
-	        local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
-		        Size = UDim2.new(1, 0, 1, 0),
-		        ScrollBarThickness = 1.5,
-		        BackgroundTransparency = 1,
-		        AutomaticCanvasSize = "Y",
-		        ScrollingDirection = "Y",
-		        Active = true
-	        }, {
-		        Create("UIPadding", {
-			        PaddingLeft = UDim.new(0, 8),
-			        PaddingRight = UDim.new(0, 8),
-			        PaddingTop = UDim.new(0, 5),
-			        PaddingBottom = UDim.new(0, 5)
-		        }),
-		        Create("UIListLayout", {
-			        Padding = UDim.new(0, 4)
-		        })
-	        }), "ScrollBar")
+            local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
+                Size = UDim2.new(1,0,1,0),
+                ScrollBarThickness = 1.5,
+                BackgroundTransparency = 1,
+                AutomaticCanvasSize = "Y",
+                ScrollingDirection = "Y",
+                Active = true
+            },{
+                Create("UIPadding",{
+                    PaddingLeft = UDim.new(0,8),
+                    PaddingRight = UDim.new(0,8),
+                    PaddingTop = UDim.new(0,5),
+                    PaddingBottom = UDim.new(0,5)
+            }),
+            Create("UIListLayout",{ Padding = UDim.new(0,4) })
+        }),"ScrollBar")
 
-	        -- ==========================
-	        -- MULTI SELECT CORE
-	        -- ==========================
-	        local Selected = {}
+    -- =========================
+    -- MULTI SELECT CORE
+    -- =========================
+       local Selected = {}
 
-	        if typeof(OpDefault) == "table" then
-		        for _,v in ipairs(OpDefault) do
-			        Selected[v] = true
-		        end
-	        elseif OpDefault ~= nil then
-		        	Selected[OpDefault] = true
-	        end
+       if typeof(OpDefault) == "table" then
+           for _,v in ipairs(OpDefault) do
+               Selected[v] = true
+           end
+       elseif OpDefault ~= nil then
+           Selected[OpDefault] = true
+       end
 
-	        local function UpdateLabel()
-		        local list = {}
-		        for v,_ in pairs(Selected) do
-			        table.insert(list, tostring(v))
-		        end
-		        ActiveLabel.Text = (#list > 0 and table.concat(list, ", ")) or "..."
-	        end
+       local function UpdateLabel()
+           local list = {}
+           for v,_ in pairs(Selected) do
+               table.insert(list, tostring(v))
+           end
+           ActiveLabel.Text = (#list > 0 and table.concat(list,", ")) or "..."
+       end
+       UpdateLabel()
 
-	        UpdateLabel()
+       for _,Option in ipairs(DOptions) do
+           local OptionButton = Create("TextButton", ScrollFrame, {
+               Name = tostring(Option),
+               Size = UDim2.new(1,-4,0,24),
+               BackgroundTransparency = 1,
+               Text = tostring(Option),
+               Font = Enum.Font.Gotham,
+               TextSize = 13,
+               TextColor3 = Theme["Color Text"],
+               TextXAlignment = Enum.TextXAlignment.Left
+           })
 
-	        for _,Option in ipairs(DOptions) do
-		        local OptionButton = Create("TextButton", ScrollFrame, {
-			        Name = tostring(Option), -- <<< FIX CRÍTICO
-			        Size = UDim2.new(1, -4, 0, 24),
-			        BackgroundTransparency = 1,
-			        Text = tostring(Option),
-			        Font = Enum.Font.Gotham,
-			        TextSize = 13,
-			        TextColor3 = Theme["Color Text"],
-			        TextXAlignment = Enum.TextXAlignment.Left
-		        })
+           OptionButton.MouseButton1Click:Connect(function()
+               if MultiSelect then
+                  Selected[Option] = not Selected[Option]
+                  UpdateLabel()
 
-		        OptionButton.MouseButton1Click:Connect(function()
-			        if MultiSelect then
-				        Selected[Option] = not Selected[Option]
-				        UpdateLabel()
+                  if Callback then
+                      local values = {}
+                      for v,_ in pairs(Selected) do
+                          table.insert(values,v)
+                      end
+                      Callback(values)
+                  end
+              else
+                  Selected = {[Option]=true}
+                  UpdateLabel()
+                  if Callback then Callback(Option) end
+                  NoClickFrame.Visible = false
+                  CreateTween({DropFrame,"Size",UDim2.new(0,152,0,0),0.2,true})
+              end
+          end)
+      end
 
-				        if Callback then
-				 	        local values = {}
-					        for v,_ in pairs(Selected) do
-						        table.insert(values, v)
-					        end
-					        Callback(values)
-				        end
-			        else
-				        Selected = {[Option] = true}
-				        UpdateLabel()
-				        if Callback then Callback(Option) end
-				        NoClickFrame.Visible = false
-			         end
-		         end)
-	          end
+      -- abrir / fechar
+      SelectedFrame.InputBegan:Connect(function(i)
+          if i.UserInputType == Enum.UserInputType.MouseButton1 then
+              NoClickFrame.Visible = not NoClickFrame.Visible
+              Arrow.Image = NoClickFrame.Visible
+                  and "rbxassetid://10709790948"
+                  or "rbxassetid://10709791523"
 
-	          SelectedFrame.InputBegan:Connect(function(i)
-		          if i.UserInputType == Enum.UserInputType.MouseButton1 then
-			      NoClickFrame.Visible = not NoClickFrame.Visible
-			      CreateTween({DropFrame,"Size",NoClickFrame.Visible and UDim2.new(0,152,0,math.min(#DOptions,6)*25+10) or UDim2.new(0,152,0,0),0.2,true})
-		       end
-	        end 
-			local ScrollSize, WaitClick = 5
-			local function Disable()
-				WaitClick = true
-				CreateTween({Arrow, "Rotation", 0, 0.2})
-				CreateTween({DropFrame, "Size", UDim2.new(0, 152, 0, 0), 0.2, true})
-				CreateTween({Arrow, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-				Arrow.Image = "rbxassetid://10709791523"
-				NoClickFrame.Visible = false
-				WaitClick = false
-			end
-			
-			local function GetFrameSize()
-				return UDim2.fromOffset(152, ScrollSize)
-			end
-			
-			local function CalculateSize()
-				local Count = 0
-				for _,Frame in pairs(ScrollFrame:GetChildren()) do
-					if Frame:IsA("Frame") or Frame.Name == "Option" then
-						Count = Count + 1
-					end
-				end
-				ScrollSize = (math.clamp(Count, 0, 10) * 25) + 10
-				if NoClickFrame.Visible then
-					NoClickFrame.Visible = true
-					CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
-				end
-			end
-			
+              CreateTween({
+                  DropFrame,
+                  "Size",
+                  NoClickFrame.Visible
+                      and UDim2.new(0,152,0,math.min(#DOptions,6)*25+10)
+                      or UDim2.new(0,152,0,0),
+                  0.2,
+                  true
+               }) 
+           end
+       end)
+   end		
 			local function Minimize()
 				if WaitClick then return end
 				WaitClick = true
@@ -2251,23 +2235,6 @@ function redzlib:MakeWindow(Configs)
 				DropFrame.AnchorPoint = Vector2.new(0, AnchorPoint)
 				CreateTween({DropFrame, "Position", NewPos, 0.1})
 			end
-			
-			local AddNewOptions, GetOptions, AddOption, RemoveOption, Selected do
-				local Default = type(OpDefault) ~= "table" and {OpDefault} or OpDefault
-				local MultiSelect = DMultiSelect
-				local Options = {}
-				Selected = MultiSelect and {} or CheckFlag(Flag) and GetFlag(Flag) or Default[1]
-				
-				if MultiSelect then
-					for index, Value in pairs(CheckFlag(Flag) and GetFlag(Flag) or Default) do
-						if type(index) == "string" and (DOptions[index] or table.find(DOptions, index)) then
-							Selected[index] = Value
-						elseif DOptions[Value] then
-							Selected[Value] = true
-						end
-					end
-				end
-				
 				local function CallbackSelected()
 					SetFlag(Flag, MultiSelect and Selected or tostring(Selected))
 					Funcs:FireCallback(Callback, Selected)
