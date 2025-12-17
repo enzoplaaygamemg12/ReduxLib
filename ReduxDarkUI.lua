@@ -2060,148 +2060,140 @@ function redzlib:MakeWindow(Configs)
 			return Toggle
 		end
 		function Tab:AddDropdown(Configs)
-			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
-			local DDesc = Configs.Desc or Configs.Description or ""
-			local DOptions = Configs[2] or Configs.Options or {}
-			local OpDefault = Configs[3] or Configs.Default or {}
-			local Flag = Configs[5] or Configs.Flag or false
-			local DMultiSelect = Configs.MultiSelect or false
-			local Callback = Funcs:GetCallback(Configs, 4)
-			
-			local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
-			
-			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
-			
-			local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
-				Size = UDim2.new(0.85, 0, 0.85, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.GothamBold,
-				TextScaled = true,
-				TextColor3 = Theme["Color Text"],
-				Text = "..."
-			}), "Text")
-			
-			local Arrow = Create("ImageLabel", SelectedFrame, {
-				Size = UDim2.new(0, 15, 0, 15),
-				Position = UDim2.new(0, -5, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				Image = "rbxassetid://10709791523",
-				BackgroundTransparency = 1
-			})
-			
-			local NoClickFrame = Create("TextButton", DropdownHolder, {
-				Name = "AntiClick",
-				Size = UDim2.new(1, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Visible = false,
-				Text = ""
-			})
-			
-			local DropFrame = Create("Frame", NoClickFrame, {
-				Size = UDim2.new(SelectedFrame.Size.X, 0, 0),
-				BackgroundTransparency = 0.1,
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				AnchorPoint = Vector2.new(0, 1),
-				Name = "DropdownFrame",
-				ClipsDescendants = true,
-				Active = true
-			})Make("Corner", DropFrame)Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
-			
-			local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
-				ScrollBarImageColor3 = Theme["Color Theme"],
-				Size = UDim2.new(1, 0, 1, 0),
-				ScrollBarThickness = 1.5,
-				BackgroundTransparency = 1,
-				BorderSizePixel = 0,
-				CanvasSize = UDim2.new(),
-				ScrollingDirection = "Y",
-				AutomaticCanvasSize = "Y",
-				Active = true
-			}, {
-				Create("UIPadding", {
-					PaddingLeft = UDim.new(0, 8),
-					PaddingRight = UDim.new(0, 8),
-					PaddingTop = UDim.new(0, 5),
-					PaddingBottom = UDim.new(0, 5)
-				}), Create("UIListLayout", {
-					Padding = UDim.new(0, 4)
-				})
-			}), "ScrollBar")
-            
-            -- default
-           if DMultiSelect then
-	           if typeof(OpDefault) == "table" then
-		            for _,v in ipairs(OpDefault) do
-			            Selected[v] = true
-		            end
-	            elseif OpDefault ~= nil then
-		            Selected[OpDefault] = true
-	            end
-            else
-	            Selected = OpDefault
-            end
+	        local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
+	        local DDesc = Configs.Desc or Configs.Description or ""
+	        local DOptions = Configs[2] or Configs.Options or {}
+	        local OpDefault = Configs[3] or Configs.Default
+	        local Callback = Funcs:GetCallback(Configs, 4)
+	        local MultiSelect = Configs.MultiSelect or false
 
-            -- NÃO recriar Selected (já vem da lib)
+	        local Button = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
 
-            local function UpdateLabel()
-	            if DMultiSelect then
-		            local list = {}
-		            for v,_ in pairs(Selected) do
-			             table.insert(list, v)
-		            end
-		            ActiveLabel.Text = (#list > 0 and table.concat(list, ", ")) or "..."
-	            else
-		            ActiveLabel.Text = tostring(Selected or "...")
-	            end
-             end
+	        local SelectedFrame = InsertTheme(Create("Frame", Button, {
+		        Size = UDim2.new(0, 150, 0, 18),
+		        Position = UDim2.new(1, -10, 0.5),
+		        AnchorPoint = Vector2.new(1, 0.5),
+		        BackgroundColor3 = Theme["Color Stroke"]
+	        }), "Stroke")
+	        Make("Corner", SelectedFrame, UDim.new(0, 4))
 
-             UpdateLabel()
+	        local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
+		        Size = UDim2.new(0.85, 0, 0.85, 0),
+		        AnchorPoint = Vector2.new(0.5, 0.5),
+		        Position = UDim2.new(0.5, 0, 0.5, 0),
+		        BackgroundTransparency = 1,
+		        Font = Enum.Font.GothamBold,
+		        TextScaled = true,
+		        TextColor3 = Theme["Color Text"],
+		        Text = "..."
+	        }), "Text")
 
-             for _, Option in ipairs(DOptions) do
-	             local OptionButton = Create("TextButton", ScrollFrame, {
-		             Size = UDim2.new(1, -4, 0, 24),
-		             BackgroundTransparency = 1,
-		             Text = tostring(Option),
-		             Font = Enum.Font.Gotham,
-		             TextSize = 13,
-		            TextColor3 = Theme["Color Text"],
-		            TextXAlignment = Enum.TextXAlignment.Left
-	             })
+	        local Arrow = Create("ImageLabel", SelectedFrame, {
+		        Size = UDim2.new(0, 15, 0, 15),
+		        Position = UDim2.new(0, -5, 0.5),
+		        AnchorPoint = Vector2.new(1, 0.5),
+		        Image = "rbxassetid://10709791523",
+		        BackgroundTransparency = 1
+	        })
 
-	             OptionButton.MouseButton1Click:Connect(function()
-		             if DMultiSelect then
-			             Selected[Option] = not Selected[Option]
-			             UpdateLabel()
+	        local NoClickFrame = Create("TextButton", DropdownHolder, {
+		         Size = UDim2.new(1, 0, 1, 0),
+		         BackgroundTransparency = 1,
+		         Visible = false,
+		         Text = ""
+	        })
 
-			             if Callback then
-				             local values = {}
-				             for v,_ in pairs(Selected) do
-					             table.insert(values, v)
-				             end
-				             Callback(values)
-			             end
-		             else
-			             Selected = Option
-			             UpdateLabel()
+	        local DropFrame = Create("Frame", NoClickFrame, {
+		        Size = UDim2.new(0, 152, 0, 0),
+		        BackgroundTransparency = 0.1,
+		        AnchorPoint = Vector2.new(0, 1),
+		        ClipsDescendants = true,
+		        Active = true
+	        })
+	        Make("Corner", DropFrame)
+	        Make("Stroke", DropFrame)
 
-			             if Callback then
-				             Callback(Option)
-			             end
+	        local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
+		        Size = UDim2.new(1, 0, 1, 0),
+		        ScrollBarThickness = 1.5,
+		        BackgroundTransparency = 1,
+		        AutomaticCanvasSize = "Y",
+		        ScrollingDirection = "Y",
+		        Active = true
+	        }, {
+		        Create("UIPadding", {
+			        PaddingLeft = UDim.new(0, 8),
+			        PaddingRight = UDim.new(0, 8),
+			        PaddingTop = UDim.new(0, 5),
+			        PaddingBottom = UDim.new(0, 5)
+		        }),
+		        Create("UIListLayout", {
+			        Padding = UDim.new(0, 4)
+		        })
+	        }), "ScrollBar")
 
-			             Disable()
-		             end
-	            end)
-            end
+	        -- ==========================
+	        -- MULTI SELECT CORE
+	        -- ==========================
+	        local Selected = {}
 
-            CalculateSize()
-			
+	        if typeof(OpDefault) == "table" then
+		        for _,v in ipairs(OpDefault) do
+			        Selected[v] = true
+		        end
+	        elseif OpDefault ~= nil then
+		        	Selected[OpDefault] = true
+	        end
+
+	        local function UpdateLabel()
+		        local list = {}
+		        for v,_ in pairs(Selected) do
+			        table.insert(list, tostring(v))
+		        end
+		        ActiveLabel.Text = (#list > 0 and table.concat(list, ", ")) or "..."
+	        end
+
+	        UpdateLabel()
+
+	        for _,Option in ipairs(DOptions) do
+		        local OptionButton = Create("TextButton", ScrollFrame, {
+			        Name = tostring(Option), -- <<< FIX CRÍTICO
+			        Size = UDim2.new(1, -4, 0, 24),
+			        BackgroundTransparency = 1,
+			        Text = tostring(Option),
+			        Font = Enum.Font.Gotham,
+			        TextSize = 13,
+			        TextColor3 = Theme["Color Text"],
+			        TextXAlignment = Enum.TextXAlignment.Left
+		        })
+
+		        OptionButton.MouseButton1Click:Connect(function()
+			        if MultiSelect then
+				        Selected[Option] = not Selected[Option]
+				        UpdateLabel()
+
+				        if Callback then
+				 	        local values = {}
+					        for v,_ in pairs(Selected) do
+						        table.insert(values, v)
+					        end
+					        Callback(values)
+				        end
+			        else
+				        Selected = {[Option] = true}
+				        UpdateLabel()
+				        if Callback then Callback(Option) end
+				        NoClickFrame.Visible = false
+			         end
+		         end)
+	          end
+
+	          SelectedFrame.InputBegan:Connect(function(i)
+		          if i.UserInputType == Enum.UserInputType.MouseButton1 then
+			      NoClickFrame.Visible = not NoClickFrame.Visible
+			      CreateTween({DropFrame,"Size",NoClickFrame.Visible and UDim2.new(0,152,0,math.min(#DOptions,6)*25+10) or UDim2.new(0,152,0,0),0.2,true})
+		       end
+	        end 
 			local ScrollSize, WaitClick = 5
 			local function Disable()
 				WaitClick = true
